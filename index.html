@@ -1,0 +1,1321 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Learning Progress Dashboard</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --dark: #111827;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+      --red-bg: #fee2e2;
+      --red-text: #991b1b;
+      --amber-bg: #fef3c7;
+      --amber-text: #92400e;
+      --blue-bg: #dbeafe;
+      --blue-text: #1e40af;
+      --green-bg: #d1fae5;
+      --green-text: #065f46;
+      --purple-bg: #ede9fe;
+      --purple-text: #5b21b6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, "Noto Sans Hebrew", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    html[dir="rtl"] body {
+      font-family: Arial, "Noto Sans Hebrew", "Segoe UI", sans-serif;
+    }
+
+    .app {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-end;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: clamp(30px, 5vw, 52px);
+      margin: 0;
+      letter-spacing: -1px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 8px 0 0;
+      line-height: 1.6;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-start;
+    }
+
+    button, .file-label {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 13px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.15s ease;
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      font-family: inherit;
+    }
+
+    button:hover, .file-label:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(15, 23, 42, 0.08);
+    }
+
+    .primary {
+      background: var(--dark);
+      color: white;
+      border-color: var(--dark);
+    }
+
+    .danger {
+      color: #b91c1c;
+      border-color: #fecaca;
+      background: white;
+    }
+
+    .ghost {
+      background: transparent;
+    }
+
+    .lang-toggle {
+      font-weight: 700;
+      min-width: 62px;
+    }
+
+    .hidden { display: none !important; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .stat {
+      padding: 18px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: 800;
+      margin-top: 8px;
+      direction: ltr;
+    }
+
+    html[dir="rtl"] .stat-value {
+      text-align: right;
+    }
+
+    .bar {
+      height: 10px;
+      background: #edf0f4;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 12px;
+      direction: ltr;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--dark);
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.25s ease;
+    }
+
+    .toolbar {
+      padding: 12px;
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+
+    .search {
+      flex: 1;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px;
+      font-size: 14px;
+      background: white;
+      color: var(--text);
+      outline: none;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #9ca3af;
+      box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.25);
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .filter.active {
+      background: var(--dark);
+      color: white;
+      border-color: var(--dark);
+    }
+
+    .main {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 18px;
+    }
+
+    .tracks {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .track-head {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1fr 220px auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .track-title {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .track-title h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .track-desc {
+      color: var(--muted);
+      margin: 7px 0 0;
+      line-height: 1.5;
+    }
+
+    .pill {
+      display: inline-flex;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      white-space: nowrap;
+    }
+
+    .score-pill {
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 5px 9px;
+      display: inline-flex;
+      font-size: 12px;
+      border: 1px solid transparent;
+      direction: ltr;
+    }
+
+    .score-line {
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      margin-bottom:7px;
+      direction:ltr;
+    }
+
+    .tone-start { background: var(--red-bg); color: var(--red-text); border-color: #fecaca; }
+    .tone-learning { background: var(--amber-bg); color: var(--amber-text); border-color: #fde68a; }
+    .tone-working { background: var(--blue-bg); color: var(--blue-text); border-color: #bfdbfe; }
+    .tone-strong { background: var(--green-bg); color: var(--green-text); border-color: #a7f3d0; }
+    .tone-mastery { background: var(--purple-bg); color: var(--purple-text); border-color: #ddd6fe; }
+
+    .items {
+      border-top: 1px solid var(--border);
+      background: #f8fafc;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .item-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .item h3 {
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .next {
+      background: #f8fafc;
+      border: 1px solid #edf0f4;
+      border-radius: 14px;
+      padding: 11px;
+      margin-top: 12px;
+    }
+
+    .next-label {
+      color: #9ca3af;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .item-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .side {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .side .card {
+      padding: 18px;
+    }
+
+    .side h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    .focus-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 13px;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    .form {
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 180px 1fr;
+      gap: 12px;
+      margin: 10px 0;
+    }
+
+    label span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .edit-form {
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius);
+      background: white;
+      padding: 14px;
+    }
+
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 160px;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .range-row {
+      margin: 8px 0 12px;
+    }
+
+    .auto-save {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .ok-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      background: #10b981;
+      border-radius: 999px;
+      margin-inline-end: 6px;
+    }
+
+    html[dir="rtl"] .ok-dot {
+      margin-inline-end: 0;
+      margin-inline-start: 6px;
+    }
+
+    .week-list label {
+      display: flex;
+      gap: 8px;
+      background: white;
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      line-height: 1.5;
+      align-items: flex-start;
+    }
+
+    .week-list input {
+      width: auto;
+      margin-top: 3px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 30px;
+      color: var(--muted);
+    }
+
+    .file-label input {
+      display: none;
+    }
+
+    .ltr {
+      direction: ltr;
+      unicode-bidi: plaintext;
+      display: inline-block;
+    }
+
+    @media (max-width: 920px) {
+      .top, .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .main {
+        grid-template-columns: 1fr;
+      }
+
+      .track-head {
+        grid-template-columns: 1fr;
+      }
+
+      .items {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid, .edit-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .app {
+        padding: 14px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions button, .file-label {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="app"></div>
+
+  <script>
+    const STORAGE_KEY = "raz_learning_progress_dashboard_bilingual_v1";
+    const LANG_KEY = STORAGE_KEY + "_language";
+
+    const layerOptions = ["All", "Core Stack", "Skills", "Expansion", "Business"];
+    const itemTags = ["Active", "Important", "Learning", "Explore", "Later", "Strong"];
+
+    const i18n = {
+      en: {
+        langCode: "EN",
+        otherLang: "עברית",
+        htmlLang: "en",
+        dir: "ltr",
+        title: "Learning & Project Progress",
+        subtitle: "Local dashboard for tracking learning, projects, tools, and the next step. Every change is saved automatically in this browser.",
+        autosaveActive: "Auto Save is active",
+        savedAt: "Saved automatically",
+        addTrack: "Add Track",
+        exportJson: "Export JSON",
+        importJson: "Import JSON",
+        reset: "Reset",
+        newTrackTitle: "Add new main track",
+        trackName: "Track name",
+        trackNamePlaceholder: "Example: Cyber Security",
+        layer: "Layer",
+        shortDescription: "Short description",
+        shortDescriptionPlaceholder: "What belongs in this track?",
+        createTrack: "Create Track",
+        cancel: "Cancel",
+        overallProgress: "Overall progress",
+        mainTracks: "Main tracks",
+        mainTracksNote: "Main tracks",
+        needsBasics: "Needs basics",
+        needsBasicsNote: "Topics at score 1–2",
+        activeTopics: "Active topics",
+        activeTopicsNote: "Active topics",
+        searchPlaceholder: "Search by track, tool, status, next step...",
+        noResults: "No results found.",
+        addTopicTitle: "Add topic",
+        openCloseTitle: "Open / close",
+        deleteTrackTitle: "Delete track",
+        deleteTopicTitle: "Delete topic",
+        edit: "Edit",
+        noStatus: "No status yet.",
+        nextStep: "Next step",
+        noNextStep: "No next step yet.",
+        topicName: "Topic name",
+        tag: "Tag",
+        progress: "Progress",
+        currentStatus: "Current status",
+        save: "Save",
+        delete: "Delete",
+        focusTitle: "Suggested focus",
+        focusCoreTitle: "1 Core topic",
+        focusCoreText: "OpenClaw / n8n / Cloudflare / Telegram.",
+        focusSkillTitle: "1 Skill topic",
+        focusSkillText: "Python or Git every week, small steps.",
+        focusExpansionTitle: "1 Expansion topic",
+        focusExpansionText: "Remotion, Hermes, ComfyUI, Website, etc.",
+        weekTitle: "This week",
+        backupTitle: "Save & Backup",
+        backupText: "Every change is saved automatically in this browser. Every now and then, click Export JSON and save the file in your backup folder.",
+        confirmDeleteTopic: "Delete this topic?",
+        confirmDeleteTrack: "Delete this full track and all its topics?",
+        confirmReset: "Reset to default? This will delete your local changes.",
+        needTrackName: "Track name is required.",
+        importError: "Could not import the file: ",
+        defaultNewTrackDescription: "New track.",
+        defaultFirstTopic: "First topic",
+        defaultNewTopic: "New topic",
+        untitled: "Untitled",
+        check1: "Fix / verify OpenClaw gateway health after update.",
+        check2: "Start Python basics: variables, files, JSON.",
+        check3: "Create first GitHub private repo for ai-stack notes."
+      },
+      he: {
+        langCode: "HE",
+        otherLang: "English",
+        htmlLang: "he",
+        dir: "rtl",
+        title: "מעקב לימוד ופרויקטים",
+        subtitle: "דשבורד מקומי למעקב אחרי לימוד, פרויקטים, כלים והצעד הבא. כל שינוי נשמר אוטומטית בדפדפן.",
+        autosaveActive: "Auto Save פעיל",
+        savedAt: "נשמר אוטומטית",
+        addTrack: "מסלול חדש",
+        exportJson: "Export JSON",
+        importJson: "Import JSON",
+        reset: "Reset",
+        newTrackTitle: "מסלול ראשי חדש",
+        trackName: "שם מסלול",
+        trackNamePlaceholder: "לדוגמה: Cyber Security",
+        layer: "שכבה",
+        shortDescription: "תיאור קצר",
+        shortDescriptionPlaceholder: "מה נכנס למסלול הזה?",
+        createTrack: "שמור מסלול",
+        cancel: "ביטול",
+        overallProgress: "התקדמות כללית",
+        mainTracks: "מסלולים ראשיים",
+        mainTracksNote: "מסלולים ראשיים",
+        needsBasics: "צריך בסיס",
+        needsBasicsNote: "נושאים בסטטוס 1–2",
+        activeTopics: "נושאים פעילים",
+        activeTopicsNote: "נושאים פעילים",
+        searchPlaceholder: "חיפוש לפי מסלול, כלי, סטטוס, צעד הבא...",
+        noResults: "לא נמצאו תוצאות.",
+        addTopicTitle: "הוסף תת־נושא",
+        openCloseTitle: "פתח / סגור",
+        deleteTrackTitle: "מחק מסלול",
+        deleteTopicTitle: "מחק תת־נושא",
+        edit: "עריכה",
+        noStatus: "אין סטטוס עדיין.",
+        nextStep: "הצעד הבא",
+        noNextStep: "אין צעד הבא עדיין.",
+        topicName: "שם תת־נושא",
+        tag: "תגית",
+        progress: "התקדמות",
+        currentStatus: "מצב נוכחי",
+        save: "שמור",
+        delete: "מחק",
+        focusTitle: "פוקוס מומלץ",
+        focusCoreTitle: "1 Core topic",
+        focusCoreText: "OpenClaw / n8n / Cloudflare / Telegram.",
+        focusSkillTitle: "1 Skill topic",
+        focusSkillText: "Python או Git בצעדים קטנים כל שבוע.",
+        focusExpansionTitle: "1 Expansion topic",
+        focusExpansionText: "Remotion, Hermes, ComfyUI, Website וכו׳.",
+        weekTitle: "השבוע",
+        backupTitle: "שמירה וגיבוי",
+        backupText: "כל שינוי נשמר אוטומטית בדפדפן. פעם בכמה זמן לחץ Export JSON ושמור את הקובץ בתיקיית גיבוי.",
+        confirmDeleteTopic: "למחוק את תת־הנושא הזה?",
+        confirmDeleteTrack: "למחוק את כל המסלול וכל תתי־הנושאים שלו?",
+        confirmReset: "לאפס לברירת המחדל? זה ימחק את השינויים המקומיים.",
+        needTrackName: "צריך שם למסלול.",
+        importError: "לא הצלחתי לייבא את הקובץ: ",
+        defaultNewTrackDescription: "מסלול חדש.",
+        defaultFirstTopic: "נושא ראשון",
+        defaultNewTopic: "נושא חדש",
+        untitled: "ללא שם",
+        check1: "Fix / verify OpenClaw gateway health after update.",
+        check2: "Start Python basics: variables, files, JSON.",
+        check3: "Create first GitHub private repo for ai-stack notes."
+      }
+    };
+
+    function t(key) {
+      const lang = state?.language || "en";
+      return i18n[lang][key] || i18n.en[key] || key;
+    }
+
+    function id() {
+      if (crypto && crypto.randomUUID) return crypto.randomUUID();
+      return "id_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+    }
+
+    function makeItem(name, score, status, next, tag) {
+      return { id: id(), name, score, status, next, tag };
+    }
+
+    const defaultTracks = [
+      {
+        id: id(),
+        name: "AI Brain / Agents",
+        layer: "Core Stack",
+        description: "OpenClaw/Zulu as the main brain, agents, skills, Telegram interface.",
+        items: [
+          makeItem("OpenClaw / Zulu", 6, "Working, needs health checks", "Check gateway health after update", "Active"),
+          makeItem("Hermes Agent", 2, "Early testing", "Map what it can do next to OpenClaw", "Explore"),
+          makeItem("Skills / Plugins", 3, "Tested some skills", "Create trusted-skill checklist", "Learning"),
+          makeItem("Telegram Interface", 5, "Working basics", "Document flows and commands", "Active")
+        ]
+      },
+      {
+        id: id(),
+        name: "Automation & Integrations",
+        layer: "Core Stack",
+        description: "n8n, webhooks, Telegram, Sheets, WhatsApp, Gmail, Calendar, Microsoft 365.",
+        items: [
+          makeItem("n8n", 5, "Running in Docker", "Organize workflows and naming", "Active"),
+          makeItem("Webhooks", 4, "Used in flows", "Create webhook registry", "Active"),
+          makeItem("Google Sheets", 3, "Basic integration tested", "Decide n8n vs direct skill", "Learning"),
+          makeItem("WhatsApp API", 2, "Concept understood", "Identify provider/API credentials", "Later"),
+          makeItem("Microsoft 365 / OAuth", 2, "Pilot stage", "Document app registration steps", "Later")
+        ]
+      },
+      {
+        id: id(),
+        name: "Infrastructure / DevOps",
+        layer: "Core Stack",
+        description: "Ubuntu, Docker, Cloudflare, DNS, backups, cron, security, logs.",
+        items: [
+          makeItem("Ubuntu Server", 7, "Operational", "Standard update checklist", "Strong"),
+          makeItem("Docker / Compose", 6, "n8n running", "Document container map", "Active"),
+          makeItem("Cloudflare Tunnel / Access", 6, "Working", "Move fully to netgate.co.il", "Active"),
+          makeItem("Backups", 5, "Script in progress", "Add Hermes and Remotion", "Active"),
+          makeItem("Logs / Monitoring", 3, "Manual checks", "Create basic health dashboard", "Learning")
+        ]
+      },
+      {
+        id: id(),
+        name: "Programming Foundations",
+        layer: "Skills",
+        description: "Python, Bash, JSON/YAML, APIs, HTTP, SQL, debugging.",
+        items: [
+          makeItem("Python", 1, "Not really started", "Start 20-minute practical basics", "Important"),
+          makeItem("Bash", 4, "Used in scripts", "Improve functions and safety", "Active"),
+          makeItem("JSON / YAML", 4, "Practical exposure", "Learn common mistakes", "Active"),
+          makeItem("APIs / HTTP", 3, "Used via n8n/curl", "Learn request/response basics", "Important"),
+          makeItem("SQL", 4, "Existing IT background", "Refresh PostgreSQL basics", "Later")
+        ]
+      },
+      {
+        id: id(),
+        name: "Git / GitHub",
+        layer: "Skills",
+        description: "Repos, commits, branches, README, project versioning.",
+        items: [
+          makeItem("Git basics", 2, "Early", "Learn add/commit/status/log", "Important"),
+          makeItem("GitHub repos", 1, "Not structured", "Create first private repo", "Important"),
+          makeItem("README files", 2, "Basic idea", "Template for each project", "Learning"),
+          makeItem("Branches", 1, "Not started", "Use later after basics", "Later")
+        ]
+      },
+      {
+        id: id(),
+        name: "AI Development Tools",
+        layer: "Expansion",
+        description: "Claude Code, Codex, app development, debugging with AI.",
+        items: [
+          makeItem("Claude Code", 4, "Used for app work", "Create prompt workflow", "Active"),
+          makeItem("Codex / OpenAI coding", 3, "Connected / exploring", "Define when to use", "Learning"),
+          makeItem("Task App Project", 4, "In development", "Fix UI/UX and order saving", "Active"),
+          makeItem("Debugging with AI", 4, "Already doing", "Use structured bug reports", "Active")
+        ]
+      },
+      {
+        id: id(),
+        name: "LLMs / Models",
+        layer: "Expansion",
+        description: "OpenAI, Claude, Gemini, Ollama, Gemma, OpenRouter, embeddings, RAG.",
+        items: [
+          makeItem("OpenAI", 5, "Platform connected", "Track model usage/cost", "Active"),
+          makeItem("Claude", 4, "Using tools", "Compare roles vs OpenAI", "Active"),
+          makeItem("Ollama / Gemma", 1, "Planned", "Install and run first local model", "Later"),
+          makeItem("OpenRouter", 2, "Concept stage", "Check fit with OpenClaw", "Explore"),
+          makeItem("Embeddings / RAG", 1, "Not started", "Learn simple RAG flow", "Later")
+        ]
+      },
+      {
+        id: id(),
+        name: "Creative AI / Media",
+        layer: "Expansion",
+        description: "Remotion, ComfyUI, image/video generation, presentations, UI/UX.",
+        items: [
+          makeItem("Remotion", 4, "Running basic renders", "Improve templates and Telegram return", "Active"),
+          makeItem("ComfyUI", 1, "Not started", "Install only after core is stable", "Later"),
+          makeItem("Image Generation", 3, "Using tools", "Collect prompt examples", "Learning"),
+          makeItem("Presentations", 4, "Created first deck", "Create design template", "Learning"),
+          makeItem("UI / UX", 3, "Improving app screens", "Create checklist", "Active")
+        ]
+      },
+      {
+        id: id(),
+        name: "Business / Personal Brand",
+        layer: "Business",
+        description: "Website, LinkedIn, services, pricing, demos.",
+        items: [
+          makeItem("Website", 4, "Direction exists", "Finalize service messaging", "Active"),
+          makeItem("LinkedIn", 2, "Started", "Profile headline and About", "Later"),
+          makeItem("Services List", 4, "Draft exists", "Turn into packages", "Active"),
+          makeItem("Pricing", 1, "Not started", "Define pilot packages", "Later"),
+          makeItem("Client Demos", 2, "Ideas exist", "Prepare one simple demo", "Important")
+        ]
+      }
+    ];
+
+    let state = {
+      tracks: load(),
+      query: "",
+      layer: "All",
+      expanded: null,
+      editing: null,
+      newTrackOpen: false,
+      newTrack: { name: "", layer: "Core Stack", description: "" },
+      checkboxes: loadCheckboxes(),
+      language: loadLanguage()
+    };
+
+    if (!state.expanded && state.tracks[0]) state.expanded = state.tracks[0].id;
+
+    applyLanguage();
+
+    function loadLanguage() {
+      try {
+        return localStorage.getItem(LANG_KEY) || "en";
+      } catch {
+        return "en";
+      }
+    }
+
+    function setLanguage(lang) {
+      state.language = lang;
+      localStorage.setItem(LANG_KEY, lang);
+      applyLanguage();
+      render();
+    }
+
+    function toggleLanguage() {
+      setLanguage(state.language === "en" ? "he" : "en");
+    }
+
+    function applyLanguage() {
+      const cfg = i18n[state.language] || i18n.en;
+      document.documentElement.lang = cfg.htmlLang;
+      document.documentElement.dir = cfg.dir;
+      document.title = cfg.title;
+    }
+
+    function load() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return structuredClone(defaultTracks);
+        const parsed = JSON.parse(saved);
+        if (!Array.isArray(parsed)) return structuredClone(defaultTracks);
+        return parsed;
+      } catch {
+        return structuredClone(defaultTracks);
+      }
+    }
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.tracks));
+      localStorage.setItem(STORAGE_KEY + "_checkboxes", JSON.stringify(state.checkboxes));
+      updateSaveStatus();
+    }
+
+    function loadCheckboxes() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY + "_checkboxes")) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function updateSaveStatus() {
+      const el = document.querySelector("#saveStatus");
+      if (!el) return;
+      const now = new Date();
+      el.innerHTML = '<span class="ok-dot"></span>' + esc(t("savedAt")) + ": " + now.toLocaleTimeString(state.language === "he" ? "he-IL" : "en-US");
+    }
+
+    function clampScore(value) {
+      const n = Number(value);
+      if (Number.isNaN(n)) return 1;
+      return Math.max(1, Math.min(10, Math.round(n)));
+    }
+
+    function calculateTrackScore(track) {
+      if (!track.items || !track.items.length) return 1;
+      const avg = track.items.reduce((sum, item) => sum + clampScore(item.score), 0) / track.items.length;
+      return Math.round(avg * 10) / 10;
+    }
+
+    function toneClass(score) {
+      score = Number(score);
+      if (score <= 2) return "tone-start";
+      if (score <= 4) return "tone-learning";
+      if (score <= 6) return "tone-working";
+      if (score <= 8) return "tone-strong";
+      return "tone-mastery";
+    }
+
+    function scoreLabel(score) {
+      score = Number(score);
+      if (score <= 2) return "Start";
+      if (score <= 4) return "Learning";
+      if (score <= 6) return "Working";
+      if (score <= 8) return "Strong";
+      return "Mastery";
+    }
+
+    function esc(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function tech(value) {
+      return `<span class="ltr">${esc(value)}</span>`;
+    }
+
+    function matchesTrack(track) {
+      const layerMatch = state.layer === "All" || track.layer === state.layer;
+      const q = state.query.trim().toLowerCase();
+      if (!q) return layerMatch;
+      const text = [
+        track.name, track.description, track.layer,
+        ...(track.items || []).flatMap(i => [i.name, i.status, i.next, i.tag])
+      ].join(" ").toLowerCase();
+      return layerMatch && text.includes(q);
+    }
+
+    function render() {
+      applyLanguage();
+
+      const tracks = state.tracks.map(track => ({ ...track, score: calculateTrackScore(track) }));
+      const filtered = tracks.filter(matchesTrack);
+      const allItems = tracks.flatMap(t => (t.items || []).map(i => ({ ...i, track: t.name })));
+      const overall = tracks.length ? Math.round((tracks.reduce((sum, t) => sum + t.score, 0) / tracks.length) * 10) / 10 : 1;
+      const weakCount = allItems.filter(i => i.score <= 2).length;
+      const activeCount = allItems.filter(i => i.tag === "Active").length;
+
+      document.querySelector("#app").innerHTML = `
+        <section class="top">
+          <div>
+            <h1>${esc(t("title"))}</h1>
+            <p class="subtitle">${esc(t("subtitle"))}</p>
+            <div id="saveStatus" class="auto-save"><span class="ok-dot"></span>${esc(t("autosaveActive"))}</div>
+          </div>
+          <div class="actions">
+            <button class="lang-toggle" onclick="toggleLanguage()">🌐 ${esc(t("otherLang"))}</button>
+            <button class="primary" onclick="toggleNewTrack()">＋ ${esc(t("addTrack"))}</button>
+            <button onclick="exportJson()">⬇ ${esc(t("exportJson"))}</button>
+            <label class="file-label">⬆ ${esc(t("importJson"))} <input type="file" accept="application/json,.json" onchange="importJson(event)"></label>
+            <button onclick="resetData()">↺ ${esc(t("reset"))}</button>
+          </div>
+        </section>
+
+        ${state.newTrackOpen ? renderNewTrackForm() : ""}
+
+        <section class="grid">
+          ${renderStat(t("overallProgress"), overall + "/10", overall)}
+          ${renderStat(t("mainTracks"), tracks.length, null, t("mainTracksNote"))}
+          ${renderStat(t("needsBasics"), weakCount, null, t("needsBasicsNote"))}
+          ${renderStat(t("activeTopics"), activeCount, null, t("activeTopicsNote"))}
+        </section>
+
+        <section class="toolbar card">
+          <div class="search">
+            <input value="${esc(state.query)}" oninput="setQuery(this.value)" placeholder="${esc(t("searchPlaceholder"))}" />
+          </div>
+          <div class="filters">
+            ${layerOptions.map(l => `
+              <button class="filter ${state.layer === l ? "active" : ""}" onclick="setLayer('${esc(l)}')">${esc(l)}</button>
+            `).join("")}
+          </div>
+        </section>
+
+        <section class="main">
+          <div class="tracks">
+            ${filtered.length ? filtered.map(renderTrack).join("") : `<div class="card empty">${esc(t("noResults"))}</div>`}
+          </div>
+          ${renderSide()}
+        </section>
+      `;
+
+      updateSaveStatus();
+    }
+
+    function renderStat(label, value, score, note = "") {
+      return `
+        <div class="card stat">
+          <div class="stat-label">${esc(label)}</div>
+          <div class="stat-value">${esc(value)}</div>
+          ${score !== null ? renderBar(score) : `<p class="muted">${esc(note)}</p>`}
+        </div>
+      `;
+    }
+
+    function renderBar(score) {
+      const width = Math.max(0, Math.min(100, Number(score) * 10));
+      return `<div class="bar"><div class="bar-fill" style="width:${width}%"></div></div>`;
+    }
+
+    function renderNewTrackForm() {
+      return `
+        <section class="card form">
+          <h2>${esc(t("newTrackTitle"))}</h2>
+          <div class="form-grid">
+            <label><span>${esc(t("trackName"))}</span><input value="${esc(state.newTrack.name)}" oninput="state.newTrack.name=this.value" placeholder="${esc(t("trackNamePlaceholder"))}"></label>
+            <label><span>${esc(t("layer"))}</span>
+              <select onchange="state.newTrack.layer=this.value">
+                ${layerOptions.filter(l => l !== "All").map(l => `<option ${state.newTrack.layer === l ? "selected" : ""}>${esc(l)}</option>`).join("")}
+              </select>
+            </label>
+            <label><span>${esc(t("shortDescription"))}</span><input value="${esc(state.newTrack.description)}" oninput="state.newTrack.description=this.value" placeholder="${esc(t("shortDescriptionPlaceholder"))}"></label>
+          </div>
+          <div class="actions">
+            <button class="primary" onclick="addTrack()">${esc(t("createTrack"))}</button>
+            <button onclick="toggleNewTrack()">${esc(t("cancel"))}</button>
+          </div>
+        </section>
+      `;
+    }
+
+    function renderTrack(track) {
+      const open = state.expanded === track.id;
+      return `
+        <article class="card">
+          <div class="track-head">
+            <div>
+              <div class="track-title">
+                <h2>${tech(track.name)}</h2>
+                <span class="pill">${esc(track.layer)}</span>
+              </div>
+              <p class="track-desc">${esc(track.description)}</p>
+            </div>
+
+            <div>
+              <div class="score-line">
+                <span class="score-pill ${toneClass(track.score)}">${esc(scoreLabel(track.score))}</span>
+                <strong>${esc(track.score)}/10</strong>
+              </div>
+              ${renderBar(track.score)}
+            </div>
+
+            <div class="actions">
+              <button title="${esc(t("addTopicTitle"))}" onclick="addItem('${track.id}')">＋</button>
+              <button title="${esc(t("openCloseTitle"))}" onclick="toggleTrack('${track.id}')">${open ? "▲" : "▼"}</button>
+              <button class="danger" title="${esc(t("deleteTrackTitle"))}" onclick="deleteTrack('${track.id}')">🗑</button>
+            </div>
+          </div>
+
+          ${open ? `<div class="items">${(track.items || []).map(item => renderItem(track.id, item)).join("")}</div>` : ""}
+        </article>
+      `;
+    }
+
+    function renderItem(trackId, item) {
+      const editing = state.editing && state.editing.trackId === trackId && state.editing.itemId === item.id;
+      if (editing) return renderEditItem(trackId, item);
+
+      return `
+        <div class="item">
+          <div class="item-top">
+            <div>
+              <h3>${tech(item.name)}</h3>
+              <p class="muted">${esc(item.status || t("noStatus"))}</p>
+            </div>
+            <span class="score-pill ${toneClass(item.score)}">${esc(item.score)}/10</span>
+          </div>
+          ${renderBar(item.score)}
+          <div class="next">
+            <div class="next-label">${esc(t("nextStep"))}</div>
+            <div class="muted">${esc(item.next || t("noNextStep"))}</div>
+          </div>
+          <div class="item-footer">
+            <span class="pill">${esc(item.tag || "Learning")}</span>
+            <div class="actions">
+              <button onclick="editItem('${trackId}', '${item.id}')">✎ ${esc(t("edit"))}</button>
+              <button class="danger" title="${esc(t("deleteTopicTitle"))}" onclick="deleteItem('${trackId}', '${item.id}')">🗑</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderEditItem(trackId, item) {
+      return `
+        <div class="edit-form">
+          <div class="edit-grid">
+            <label><span>${esc(t("topicName"))}</span><input id="edit-name" value="${esc(item.name)}"></label>
+            <label><span>${esc(t("tag"))}</span>
+              <select id="edit-tag">
+                ${itemTags.map(tagName => `<option ${item.tag === tagName ? "selected" : ""}>${esc(tagName)}</option>`).join("")}
+              </select>
+            </label>
+          </div>
+
+          <div class="range-row">
+            <label><span>${esc(t("progress"))}: <b id="range-value">${esc(item.score)}</b>/10</span>
+              <input id="edit-score" type="range" min="1" max="10" value="${esc(item.score)}" oninput="document.getElementById('range-value').textContent=this.value">
+            </label>
+          </div>
+
+          <label><span>${esc(t("currentStatus"))}</span><textarea id="edit-status">${esc(item.status)}</textarea></label>
+          <label style="margin-top:10px"><span>${esc(t("nextStep"))}</span><textarea id="edit-next">${esc(item.next)}</textarea></label>
+
+          <div class="form-actions">
+            <div class="actions">
+              <button class="primary" onclick="saveItem('${trackId}', '${item.id}')">${esc(t("save"))}</button>
+              <button onclick="cancelEdit()">${esc(t("cancel"))}</button>
+            </div>
+            <button class="danger" onclick="deleteItem('${trackId}', '${item.id}')">${esc(t("delete"))}</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSide() {
+      return `
+        <aside class="side">
+          <div class="card">
+            <h2>${esc(t("focusTitle"))}</h2>
+            <div class="focus-box"><strong>${esc(t("focusCoreTitle"))}</strong><br><span class="muted">${esc(t("focusCoreText"))}</span></div>
+            <div class="focus-box"><strong>${esc(t("focusSkillTitle"))}</strong><br><span class="muted">${esc(t("focusSkillText"))}</span></div>
+            <div class="focus-box"><strong>${esc(t("focusExpansionTitle"))}</strong><br><span class="muted">${esc(t("focusExpansionText"))}</span></div>
+          </div>
+
+          <div class="card">
+            <h2>${esc(t("weekTitle"))}</h2>
+            <div class="week-list">
+              ${renderCheck("week1", t("check1"))}
+              ${renderCheck("week2", t("check2"))}
+              ${renderCheck("week3", t("check3"))}
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>${esc(t("backupTitle"))}</h2>
+            <p class="muted">${esc(t("backupText"))}</p>
+          </div>
+        </aside>
+      `;
+    }
+
+    function renderCheck(key, text) {
+      const checked = state.checkboxes[key] ? "checked" : "";
+      return `
+        <label>
+          <input type="checkbox" ${checked} onchange="setCheckbox('${key}', this.checked)">
+          <span>${esc(text)}</span>
+        </label>
+      `;
+    }
+
+    function setCheckbox(key, value) {
+      state.checkboxes[key] = value;
+      save();
+    }
+
+    function setQuery(value) {
+      state.query = value;
+      render();
+    }
+
+    function setLayer(value) {
+      state.layer = value;
+      render();
+    }
+
+    function toggleNewTrack() {
+      state.newTrackOpen = !state.newTrackOpen;
+      render();
+    }
+
+    function addTrack() {
+      const name = state.newTrack.name.trim();
+      if (!name) {
+        alert(t("needTrackName"));
+        return;
+      }
+
+      const track = {
+        id: id(),
+        name,
+        layer: state.newTrack.layer,
+        description: state.newTrack.description.trim() || t("defaultNewTrackDescription"),
+        items: [makeItem(t("defaultFirstTopic"), 1, "", "", "Learning")]
+      };
+
+      state.tracks.unshift(track);
+      state.expanded = track.id;
+      state.newTrack = { name: "", layer: "Core Stack", description: "" };
+      state.newTrackOpen = false;
+      save();
+      render();
+    }
+
+    function toggleTrack(trackId) {
+      state.expanded = state.expanded === trackId ? null : trackId;
+      render();
+    }
+
+    function addItem(trackId) {
+      const track = state.tracks.find(t => t.id === trackId);
+      if (!track) return;
+      const item = makeItem(t("defaultNewTopic"), 1, "", "", "Learning");
+      track.items.unshift(item);
+      state.expanded = trackId;
+      state.editing = { trackId, itemId: item.id };
+      save();
+      render();
+    }
+
+    function editItem(trackId, itemId) {
+      state.editing = { trackId, itemId };
+      render();
+    }
+
+    function cancelEdit() {
+      state.editing = null;
+      render();
+    }
+
+    function saveItem(trackId, itemId) {
+      const track = state.tracks.find(t => t.id === trackId);
+      if (!track) return;
+      const item = track.items.find(i => i.id === itemId);
+      if (!item) return;
+
+      item.name = document.getElementById("edit-name").value.trim() || t("untitled");
+      item.tag = document.getElementById("edit-tag").value;
+      item.score = clampScore(document.getElementById("edit-score").value);
+      item.status = document.getElementById("edit-status").value;
+      item.next = document.getElementById("edit-next").value;
+
+      state.editing = null;
+      save();
+      render();
+    }
+
+    function deleteItem(trackId, itemId) {
+      if (!confirm(t("confirmDeleteTopic"))) return;
+      const track = state.tracks.find(t => t.id === trackId);
+      if (!track) return;
+      track.items = track.items.filter(i => i.id !== itemId);
+      state.editing = null;
+      save();
+      render();
+    }
+
+    function deleteTrack(trackId) {
+      if (!confirm(t("confirmDeleteTrack"))) return;
+      state.tracks = state.tracks.filter(t => t.id !== trackId);
+      if (state.expanded === trackId) state.expanded = state.tracks[0]?.id || null;
+      save();
+      render();
+    }
+
+    function resetData() {
+      if (!confirm(t("confirmReset"))) return;
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY + "_checkboxes");
+      state.tracks = structuredClone(defaultTracks);
+      state.checkboxes = {};
+      state.expanded = state.tracks[0]?.id || null;
+      save();
+      render();
+    }
+
+    function exportJson() {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        language: state.language,
+        tracks: state.tracks,
+        checkboxes: state.checkboxes
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "learning-progress-backup.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importJson(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(reader.result);
+          const tracks = Array.isArray(parsed) ? parsed : parsed.tracks;
+          if (!Array.isArray(tracks)) throw new Error("Invalid file format");
+          state.tracks = tracks;
+          state.checkboxes = parsed.checkboxes || {};
+          if (parsed.language === "en" || parsed.language === "he") {
+            state.language = parsed.language;
+            localStorage.setItem(LANG_KEY, parsed.language);
+          }
+          state.expanded = state.tracks[0]?.id || null;
+          save();
+          render();
+        } catch (err) {
+          alert(t("importError") + err.message);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function runTests() {
+      console.assert(clampScore(-1) === 1, "clamp low");
+      console.assert(clampScore(99) === 10, "clamp high");
+      console.assert(clampScore(4.6) === 5, "clamp round");
+      console.assert(scoreLabel(1) === "Start", "label start");
+      console.assert(scoreLabel(5) === "Working", "label working");
+      console.assert(calculateTrackScore({ items: [{ score: 2 }, { score: 4 }, { score: 6 }] }) === 4, "average");
+      console.assert(makeItem("Python", 1, "", "", "Learning").name === "Python", "make item");
+      console.assert(i18n.en.dir === "ltr", "English LTR");
+      console.assert(i18n.he.dir === "rtl", "Hebrew RTL");
+      console.assert(i18n.en.title && i18n.he.title, "translations exist");
+    }
+
+    runTests();
+    render();
+  </script>
+</body>
+</html>
