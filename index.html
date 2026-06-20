@@ -13,6 +13,8 @@
       --border: #e5e7eb;
       --dark: #111827;
       --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      --hover-shadow: 0 5px 14px rgba(15, 23, 42, 0.08);
+      --focus-ring: rgba(156, 163, 175, 0.25);
       --radius: 18px;
       --surface: #f8fafc;
       --bar-bg: #edf0f4;
@@ -46,6 +48,8 @@
       --border: #2d3748;
       --dark: #f1f5f9;
       --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      --hover-shadow: 0 5px 14px rgba(0, 0, 0, 0.4);
+      --focus-ring: rgba(99, 102, 241, 0.45);
       --surface: #161b27;
       --bar-bg: #2d3748;
       --input-border: #4b5563;
@@ -130,7 +134,7 @@
 
     button:hover, .file-label:hover {
       transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(15, 23, 42, 0.08);
+      box-shadow: var(--hover-shadow);
     }
 
     .primary {
@@ -238,7 +242,7 @@
 
     input:focus, textarea:focus, select:focus {
       border-color: var(--input-border);
-      box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.25);
+      box-shadow: 0 0 0 3px var(--focus-ring);
     }
 
     .filters {
@@ -889,6 +893,7 @@
       state.theme = theme;
       localStorage.setItem(THEME_KEY, theme);
       applyTheme();
+      render();
     }
 
     function applyTheme() {
@@ -1327,6 +1332,7 @@
       const payload = {
         exportedAt: new Date().toISOString(),
         language: state.language,
+        theme: state.theme,
         tracks: state.tracks,
         checkboxes: state.checkboxes
       };
@@ -1355,6 +1361,10 @@
           if (parsed.language === "en" || parsed.language === "he") {
             state.language = parsed.language;
             localStorage.setItem(LANG_KEY, parsed.language);
+          }
+          if (parsed.theme === "light" || parsed.theme === "dark") {
+            state.theme = parsed.theme;
+            localStorage.setItem(THEME_KEY, parsed.theme);
           }
           state.expanded = state.tracks[0]?.id || null;
           save();
