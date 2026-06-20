@@ -14,6 +14,18 @@
       --dark: #111827;
       --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
       --radius: 18px;
+      --surface: #f8fafc;
+      --bar-bg: #edf0f4;
+      --input-border: #9ca3af;
+      --next-border: #edf0f4;
+      --edit-border: #cbd5e1;
+      --danger-text: #b91c1c;
+      --danger-border: #fecaca;
+      --ok-color: #10b981;
+      --amber-border: #fde68a;
+      --blue-border: #bfdbfe;
+      --green-border: #a7f3d0;
+      --purple-border: #ddd6fe;
       --red-bg: #fee2e2;
       --red-text: #991b1b;
       --amber-bg: #fef3c7;
@@ -24,6 +36,33 @@
       --green-text: #065f46;
       --purple-bg: #ede9fe;
       --purple-text: #5b21b6;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f1117;
+      --card: #1a1f2e;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #2d3748;
+      --dark: #f1f5f9;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      --surface: #161b27;
+      --bar-bg: #2d3748;
+      --input-border: #4b5563;
+      --next-border: #2d3748;
+      --edit-border: #374151;
+      --danger-text: #f87171;
+      --danger-border: #ef4444;
+      --ok-color: #10b981;
+      --amber-border: #f59e0b;
+      --blue-border: #60a5fa;
+      --green-border: #34d399;
+      --purple-border: #a78bfa;
+      --red-bg: #4c0519;    --red-text: #fca5a5;
+      --amber-bg: #451a03;  --amber-text: #fcd34d;
+      --blue-bg: #1e3a5f;   --blue-text: #93c5fd;
+      --green-bg: #064e3b;  --green-text: #6ee7b7;
+      --purple-bg: #3b0764; --purple-text: #c4b5fd;
     }
 
     * { box-sizing: border-box; }
@@ -96,14 +135,14 @@
 
     .primary {
       background: var(--dark);
-      color: white;
+      color: var(--bg);
       border-color: var(--dark);
     }
 
     .danger {
-      color: #b91c1c;
-      border-color: #fecaca;
-      background: white;
+      color: var(--danger-text);
+      border-color: var(--danger-border);
+      background: var(--card);
     }
 
     .ghost {
@@ -153,7 +192,7 @@
 
     .bar {
       height: 10px;
-      background: #edf0f4;
+      background: var(--bar-bg);
       border-radius: 999px;
       overflow: hidden;
       margin-top: 12px;
@@ -186,7 +225,7 @@
       border-radius: 12px;
       padding: 11px;
       font-size: 14px;
-      background: white;
+      background: var(--card);
       color: var(--text);
       outline: none;
       font-family: inherit;
@@ -198,7 +237,7 @@
     }
 
     input:focus, textarea:focus, select:focus {
-      border-color: #9ca3af;
+      border-color: var(--input-border);
       box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.25);
     }
 
@@ -210,7 +249,7 @@
 
     .filter.active {
       background: var(--dark);
-      color: white;
+      color: var(--bg);
       border-color: var(--dark);
     }
 
@@ -258,7 +297,7 @@
       padding: 5px 9px;
       font-size: 12px;
       border: 1px solid var(--border);
-      background: #f8fafc;
+      background: var(--surface);
       white-space: nowrap;
     }
 
@@ -280,15 +319,15 @@
       direction:ltr;
     }
 
-    .tone-start { background: var(--red-bg); color: var(--red-text); border-color: #fecaca; }
-    .tone-learning { background: var(--amber-bg); color: var(--amber-text); border-color: #fde68a; }
-    .tone-working { background: var(--blue-bg); color: var(--blue-text); border-color: #bfdbfe; }
-    .tone-strong { background: var(--green-bg); color: var(--green-text); border-color: #a7f3d0; }
-    .tone-mastery { background: var(--purple-bg); color: var(--purple-text); border-color: #ddd6fe; }
+    .tone-start { background: var(--red-bg); color: var(--red-text); border-color: var(--danger-border); }
+    .tone-learning { background: var(--amber-bg); color: var(--amber-text); border-color: var(--amber-border); }
+    .tone-working { background: var(--blue-bg); color: var(--blue-text); border-color: var(--blue-border); }
+    .tone-strong { background: var(--green-bg); color: var(--green-text); border-color: var(--green-border); }
+    .tone-mastery { background: var(--purple-bg); color: var(--purple-text); border-color: var(--purple-border); }
 
     .items {
       border-top: 1px solid var(--border);
-      background: #f8fafc;
+      background: var(--surface);
       padding: 14px;
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -296,7 +335,7 @@
     }
 
     .item {
-      background: white;
+      background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 14px;
@@ -322,15 +361,15 @@
     }
 
     .next {
-      background: #f8fafc;
-      border: 1px solid #edf0f4;
+      background: var(--surface);
+      border: 1px solid var(--next-border);
       border-radius: 14px;
       padding: 11px;
       margin-top: 12px;
     }
 
     .next-label {
-      color: #9ca3af;
+      color: var(--muted);
       font-size: 11px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -362,7 +401,7 @@
     }
 
     .focus-box {
-      background: #f8fafc;
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 14px;
       padding: 13px;
@@ -391,9 +430,9 @@
     }
 
     .edit-form {
-      border: 1px solid #cbd5e1;
+      border: 1px solid var(--edit-border);
       border-radius: var(--radius);
-      background: white;
+      background: var(--card);
       padding: 14px;
     }
 
@@ -426,7 +465,7 @@
       display: inline-block;
       width: 9px;
       height: 9px;
-      background: #10b981;
+      background: var(--ok-color);
       border-radius: 999px;
       margin-inline-end: 6px;
     }
@@ -439,7 +478,7 @@
     .week-list label {
       display: flex;
       gap: 8px;
-      background: white;
+      background: var(--card);
       border: 1px solid var(--border);
       padding: 10px;
       border-radius: 12px;
@@ -517,6 +556,7 @@
   <script>
     const STORAGE_KEY = "raz_learning_progress_dashboard_bilingual_v1";
     const LANG_KEY = STORAGE_KEY + "_language";
+    const THEME_KEY = STORAGE_KEY + "_theme";
 
     const layerOptions = ["All", "Core Stack", "Skills", "Expansion", "Business"];
     const itemTags = ["Active", "Important", "Learning", "Explore", "Later", "Strong"];
@@ -798,12 +838,14 @@
       newTrackOpen: false,
       newTrack: { name: "", layer: "Core Stack", description: "" },
       checkboxes: loadCheckboxes(),
-      language: loadLanguage()
+      language: loadLanguage(),
+      theme: loadTheme()
     };
 
     if (!state.expanded && state.tracks[0]) state.expanded = state.tracks[0].id;
 
     applyLanguage();
+    applyTheme();
 
     function loadLanguage() {
       try {
@@ -829,6 +871,28 @@
       document.documentElement.lang = cfg.htmlLang;
       document.documentElement.dir = cfg.dir;
       document.title = cfg.title;
+    }
+
+    function loadTheme() {
+      try {
+        return localStorage.getItem(THEME_KEY) || "light";
+      } catch {
+        return "light";
+      }
+    }
+
+    function toggleTheme() {
+      setTheme(state.theme === "light" ? "dark" : "light");
+    }
+
+    function setTheme(theme) {
+      state.theme = theme;
+      localStorage.setItem(THEME_KEY, theme);
+      applyTheme();
+    }
+
+    function applyTheme() {
+      document.documentElement.setAttribute("data-theme", state.theme);
     }
 
     function load() {
@@ -920,6 +984,7 @@
 
     function render() {
       applyLanguage();
+      applyTheme();
 
       const tracks = state.tracks.map(track => ({ ...track, score: calculateTrackScore(track) }));
       const filtered = tracks.filter(matchesTrack);
@@ -936,6 +1001,7 @@
             <div id="saveStatus" class="auto-save"><span class="ok-dot"></span>${esc(t("autosaveActive"))}</div>
           </div>
           <div class="actions">
+            <button class="lang-toggle" onclick="toggleTheme()">${state.theme === 'dark' ? '☀️' : '🌙'}</button>
             <button class="lang-toggle" onclick="toggleLanguage()">🌐 ${esc(t("otherLang"))}</button>
             <button class="primary" onclick="toggleNewTrack()">＋ ${esc(t("addTrack"))}</button>
             <button onclick="exportJson()">⬇ ${esc(t("exportJson"))}</button>
